@@ -25,7 +25,7 @@ class NationalMonumentsAssistant:
         El output será un JSON con dos campos
         ```json
         {
-            "emoji": "✅" si no hay problema, "⚠️" si hay algo cercano, "❌" si hay algo critico,
+            "emoji": "✅" si no hay problema, "❌" si hay algo critico,
             "resumen": Resumen corto de la evaluacion,
             "evaluacion": Detalle de la evaluacion
         }
@@ -44,10 +44,9 @@ class NationalMonumentsAssistant:
 
     def evaluate_project(self, location: Polygon, threshold_in_meters: int = 5000) -> dict:
         distance = self.df.geometry.distance(location.iloc[0].geometry)
-        self.df['distance'] = distance
-        print(self.df[self.df.str.contains('')])
-
-        close_parks = self.df[distance < threshold_in_meters]
+        self.df['distance_kms'] = distance
+        close_parks = self.df[self.df.distance_kms < threshold_in_meters]
+        print(close_parks)
         
         print("Numero de parques cercanos: ", close_parks.shape[0])
 
@@ -59,7 +58,7 @@ class NationalMonumentsAssistant:
             {"role": "user", "content": message}
         ]
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=messages,
             response_format={ "type": "json_object" },
             temperature=0

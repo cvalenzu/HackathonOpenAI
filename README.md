@@ -12,3 +12,8 @@ pip install poetry
 poetry install
 ```
 
+## Correr streamlit
+
+```bash
+streamlit  run  --server.runOnSave true ui/Home.py
+```

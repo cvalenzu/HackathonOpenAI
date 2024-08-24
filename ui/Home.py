@@ -8,7 +8,6 @@ from streamlit_folium import st_folium
 from shapely.geometry import shape
 import geopandas as gpd
 
-
 from hackathonopenai import (
     NationalMonumentsAssistant
 )
@@ -34,29 +33,22 @@ def generate_report_expert(response: dict, title: str):
 
 def call_agents(gdf: gpd.GeoDataFrame):
     """Call agents to the selected area"""
-    st.write('Calling agents...')
     response_national_park = national_park_expert.evaluate_project(gdf)
-    generate_report_expert(response_national_park, "Parques nacionales")
-    st.write('Agents called!')
+    generate_report_expert(response_national_park, "Monumentos nacionales")
 
 
 
-def app():
-    st.title('Asistente de evaluación de proyectos fotovoltaicos')
-    st.write('Welcome to the Home page!')
-    m = folium.Map(location=[-33.397629, -71.132279], zoom_start=9  )
-    Draw(export=True).add_to(m)
+st.title('Asistente de evaluación de proyectos fotovoltaicos')
+st.write('Welcome to the Home page!')
+m = folium.Map(location=[-33.397629, -71.132279], zoom_start=9  )
+Draw(export=True).add_to(m)
 
-    output = st_folium(m, width=700, height=500)
-    if output["last_active_drawing"] is not None:
-        geom = output["last_active_drawing"]
+output = st_folium(m, width=700, height=500)
+
+if st.button('Generar Informe', use_container_width=True):
+    geom = output["last_active_drawing"]
+    if geom:
         polygon = shape(geom['geometry'])
         gdf = gpd.GeoDataFrame([geom['properties']], geometry=[polygon], crs="EPSG:4326")
-        print(gdf)
-
-        if st.button('Generar Informe', use_container_width=True):
-            call_agents(gdf)
-
-
-if __name__ == '__main__':
-    app()
+        gdf_kms = gdf.to_crs("EPSG:32633")
+        call_agents(gdf_kms)
