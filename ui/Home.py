@@ -52,6 +52,11 @@ def call_agents(gdf: gpd.GeoDataFrame):
     with st.spinner('Generando informe de Sitios prioritarios...'):
         generate_report_expert(response_priority_sites, "Sitios prioritarios")
 
+    response_land_usage = land_usage_expert.evaluate_project(gdf)
+    with st.spinner('Generando informe de Sitios prioritarios...'):
+        generate_report_expert(response_land_usage, "Uso de suelos protegidos")
+
+
 st.title('Asistente de evaluación de proyectos fotovoltaicos')
 st.write('Welcome to the Home page!')
 m = folium.Map(location=[-33.397629, -71.132279], zoom_start=9)
