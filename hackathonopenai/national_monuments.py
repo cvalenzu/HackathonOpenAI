@@ -14,7 +14,9 @@ class NationalMonumentsAssistant:
         Eres un experto en monumentos nacionales y te han contratado para hacer la evaluación de impacto ambiental
         de un nuevo proyecto fotovoltaico en Chile.
 
-        El usuario entregará su locacion y los monumentos nacionales cercanos en un radio de 3km.
+        El usuario entregará su locacion y los monumentos nacionales cercanos, con la distancia en KMs (threshold_in_kilometers)
+        No monumentos nacionales tienen que estar a menos de 5Kms del proyecto para ser considerados cercanos, si estan mas lejos
+        no son tan relevantes, usa tu conocimiento para definir si es algo critico o no.
 
         Tu trabajo es entregar una detallada evaluación de impacto ambiental del proyecto fotovoltaico en los monumentos nacionales cercanos.
 
@@ -42,10 +44,10 @@ class NationalMonumentsAssistant:
         return message.replace("{close_parks}", close_parks_data)
 
 
-    def evaluate_project(self, location: Polygon, threshold_in_meters: int = 5000) -> dict:
-        distance = self.df.geometry.distance(location.iloc[0].geometry)
-        self.df['distance_kms'] = distance
-        close_parks = self.df[self.df.distance_kms < threshold_in_meters]
+    def evaluate_project(self, location: Polygon, threshold_in_kilometers: int = 10) -> dict:
+        distance = self.df.geometry.distance(location.iloc[0].geometry)/1000
+        self.df['distance_in_kms'] = distance
+        close_parks = self.df[self.df.distance_in_kms < threshold_in_kilometers]
         print(close_parks)
         
         print("Numero de parques cercanos: ", close_parks.shape[0])
