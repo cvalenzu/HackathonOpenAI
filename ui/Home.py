@@ -17,34 +17,38 @@ load_dotenv('.env')
 
 client = OpenAI()
 
-# Parques nacionales
-df = gpd.read_file('data/parques_nacionales/data_parques.shp')
-df_kms = df.to_crs("EPSG:32633")
-national_park_expert = NationalMonumentsAssistant(df=df_kms, client=client)
+@st.cache_data
+def load_assistants():
+    # Parques nacionales
+    df = gpd.read_file('data/parques_nacionales/data_parques.shp')
+    df_kms = df.to_crs("EPSG:32633")
 
-# Sitios prioritarios
-df_prioritarios = gpd.read_file('data/sitios_prioritarios/Sitios_Prioritarios.shp')
-df_prioritarios_kms = df_prioritarios.to_crs("EPSG:32633")
-priority_sites_expert = PrioritySitesAssistant(df=df_prioritarios_kms, client=client)
+    # Sitios prioritarios
+    df_prioritarios = gpd.read_file('data/sitios_prioritarios/Sitios_Prioritarios.shp')
+    df_prioritarios_kms = df_prioritarios.to_crs("EPSG:32633")
 
-# Uso de suelos
-df_land_usage = gpd.read_file('data/uso_suelos/05_region_valparaiso.shp')[
-    ["USO_TIERRA", "USO", "NOM_REG", "NOM_COM", "geometry"]]
-df_land_usage_kms = df_prioritarios.to_crs("EPSG:32633")
-land_usage_expert = LandUseAssistant(df=df_land_usage_kms, client=client)
+    # Uso de suelos
+    df_land_usage = gpd.read_file('data/uso_suelos/05_region_valparaiso.shp')[
+        ["USO_TIERRA", "USO", "NOM_REG", "NOM_COM", "geometry"]]
+    df_land_usage_kms = df_land_usage.to_crs("EPSG:32633")
+    return {
+        "national_park_expert_data": df_kms,
+        "priority_sites_expert_data": df_prioritarios_kms,
+        "land_usage_expert_data": df_land_usage_kms
+    }
 
+experts = load_assistants()
+national_monument_expert = NationalMonumentsAssistant(df=experts['national_park_expert_data'], client=client)
+priority_sites_expert = PrioritySitesAssistant(df=experts['priority_sites_expert_data'], client=client)
+land_usage_expert = LandUseAssistant(df=experts['land_usage_expert_data'], client=client)
 
 def generate_report_expert(response: dict, title: str):
     with st.expander(f'**{response["emoji"]} {title}**: {response["resumen"]}'):
         st.write(response["evaluacion"])
 
-        map = response.get('streamlit', None)
-        print(map)
-
-
 def call_agents(gdf: gpd.GeoDataFrame):
     """Call agents to the selected area"""
-    response_national_park = national_park_expert.evaluate_project(gdf)
+    response_national_park = national_monument_expert.evaluate_project(gdf)
     with st.spinner('Generando informe de Monumentos nacionales...'):
         generate_report_expert(response_national_park, "Monumentos nacionales")
 
