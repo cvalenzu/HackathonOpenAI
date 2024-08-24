@@ -73,29 +73,31 @@ def generate_report_expert(response: dict, title: str):
 
 def call_agents(gdf: gpd.GeoDataFrame):
     """Call agents to the selected area"""
-    response_national_park = national_monument_expert.evaluate_project(gdf)
     with st.spinner("Generando informe de Monumentos nacionales..."):
+        response_national_park = national_monument_expert.evaluate_project(gdf)
         generate_report_expert(response_national_park, "Monumentos nacionales")
 
-    response_priority_sites = priority_sites_expert.evaluate_project(gdf)
     with st.spinner("Generando informe de Sitios prioritarios..."):
+        response_priority_sites = priority_sites_expert.evaluate_project(gdf)
         generate_report_expert(response_priority_sites, "Sitios prioritarios")
 
-    response_land_usage = land_usage_expert.evaluate_project(gdf)
-    with st.spinner("Generando informe de Sitios prioritarios..."):
+    with st.spinner("Generando informe de Uso de suelos protegidos..."):
+        response_land_usage = land_usage_expert.evaluate_project(gdf)
         generate_report_expert(response_land_usage, "Uso de suelos protegidos")
 
-    response_paleontological_potential = (
-        paleontological_potential_expert.evaluate_project(gdf)
-    )
     with st.spinner("Generando informe de Potencial paleontológico..."):
+        response_paleontological_potential = (
+            paleontological_potential_expert.evaluate_project(gdf)
+        )
         generate_report_expert(
             response_paleontological_potential, "Potencial paleontológico"
         )
 
 
 st.title("Camilo y Los fotovoltaicos")
-st.write("Welcome to Milito Page!")
+st.write(
+    "Bienvenido a la página de evaluación de impacto ambiental para proyectos fotovoltaicos."
+)
 
 col1, col2 = st.columns(2)
 
@@ -108,11 +110,15 @@ with col1:
 
 with col2:
     if btn_report:
-        geom = output["last_active_drawing"]
+        geom = output.get("last_active_drawing")
         if geom:
             polygon = shape(geom["geometry"])
             gdf = gpd.GeoDataFrame(
                 [geom["properties"]], geometry=[polygon], crs="EPSG:4326"
             )
-            gdf_kms = gdf.to_crs(UTM_CRS)
+            gdf_kms = gdf.to_crs("EPSG:32633")
             call_agents(gdf_kms)
+        else:
+            st.warning(
+                "Por favor, dibuja un polígono en el mapa antes de generar el informe."
+            )
