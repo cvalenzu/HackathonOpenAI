@@ -14,6 +14,7 @@ from hackathonopenai import (
 )
 from hackathonopenai.land_usage import LandUseAssistant
 
+UTM_CRS = "EPSG:32633"
 load_dotenv(".env")
 
 client = OpenAI()
@@ -24,26 +25,26 @@ st.set_page_config(layout="wide")
 @st.cache_data
 def load_assistants():
     # Parques nacionales
-    df = gpd.read_file("data/parques_nacionales/data_parques.shp")
-    df_kms = df.to_crs("EPSG:32633")
+    df_national_monuments = gpd.read_file("data/parques_nacionales/data_parques.shp")
+    df_national_monuments_kms = df_national_monuments.to_crs(UTM_CRS)
 
     # Sitios prioritarios
     df_prioritarios = gpd.read_file("data/sitios_prioritarios/Sitios_Prioritarios.shp")
-    df_prioritarios_kms = df_prioritarios.to_crs("EPSG:32633")
+    df_prioritarios_kms = df_prioritarios.to_crs(UTM_CRS)
 
     # Uso de suelos
     df_land_usage = gpd.read_file("data/uso_suelos/05_region_valparaiso.shp")[
         ["USO_TIERRA", "USO", "NOM_REG", "NOM_COM", "geometry"]
     ]
-    df_land_usage_kms = df_land_usage.to_crs("EPSG:32633")
+    df_land_usage_kms = df_land_usage.to_crs(UTM_CRS)
 
     df_palentological = gpd.read_file(
         "data/potencial_paleontologico/data_pot_paleon.shp"
     )
-    df_palentological_kms = df_palentological.to_crs("EPSG:32633")
+    df_palentological_kms = df_palentological.to_crs(UTM_CRS)
 
     return {
-        "national_park_expert_data": df_kms,
+        "national_park_expert_data": df_national_monuments_kms,
         "priority_sites_expert_data": df_prioritarios_kms,
         "land_usage_expert_data": df_land_usage_kms,
         "paleontological_potential_expert_data": df_palentological_kms,
@@ -113,5 +114,5 @@ with col2:
             gdf = gpd.GeoDataFrame(
                 [geom["properties"]], geometry=[polygon], crs="EPSG:4326"
             )
-            gdf_kms = gdf.to_crs("EPSG:32633")
+            gdf_kms = gdf.to_crs(UTM_CRS)
             call_agents(gdf_kms)
