@@ -10,6 +10,7 @@ python = "^3.12"
 geopandas = "^1.0.1"
 wget = "^3.2"
 matplotlib = "^3.9.2"
+openai = "^1.42.0"
 
 
 [build-system]
