@@ -28,7 +28,7 @@ class NationalMonumentsAssistant:
         ```json
         {
             "emoji": (str) "✅" si no hay problema, "❌" si hay algo critico,
-            "resumen": (str) Resumen corto de la evaluacion,
+            "resumen": (str) Resumen breve de la evaluacion,
             "evaluacion": (str) Detalle de la evaluacion
         }
         ```
