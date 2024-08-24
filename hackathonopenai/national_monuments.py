@@ -27,9 +27,9 @@ class NationalMonumentsAssistant:
         El output será un JSON con dos campos
         ```json
         {
-            "emoji": "✅" si no hay problema, "❌" si hay algo critico,
-            "resumen": Resumen corto de la evaluacion,
-            "evaluacion": Detalle de la evaluacion
+            "emoji": (str) "✅" si no hay problema, "❌" si hay algo critico,
+            "resumen": (str) Resumen corto de la evaluacion,
+            "evaluacion": (str) Detalle de la evaluacion
         }
         ```
         """
