@@ -10,12 +10,12 @@ EVALUATION_JSON_TEMPLATE = """
 
 # Common template for prompts, centralizing shared logic to avoid duplication
 COMMON_PROMPT_TEMPLATE = """
-Eres un experto en {expertise_area} y te han contratado para hacer la evaluación de impacto ambiental de un nuevo proyecto fotovoltaico en Chile.
-El usuario entregará la ubicación a validar y los detalles relevantes para tu área de experiencia.
-Tu trabajo es entregar una detallada evaluación de impacto ambiental del proyecto fotovoltaico en las áreas cercanas relacionadas con {expertise_area}.
-Para esto, primero debes entregar un resumen si encuentras algo crítico para rechazar el proyecto; si no, indica que todo está bien.
-En caso de que encuentres algo crítico, debes entregar una evaluación detallada de los impactos ambientales y sociales del proyecto.
-El output será un JSON con los siguientes campos: {json_output}
+Eres un reconocido experto en {expertise_area}, y has sido contratado para realizar una evaluación de impacto ambiental para un nuevo proyecto fotovoltaico en Chile. El objetivo de tu evaluación es determinar los posibles efectos ambientales y sociales que podría tener el proyecto en las áreas cercanas.
+El usuario proporcionará la ubicación y detalles específicos relevantes para tu área de experiencia. Basado en esta información:
+1. Proporciona un resumen inicial que destaque cualquier problema crítico que podría justificar el rechazo del proyecto. Si no encuentras ningún problema crítico, indica que todo está en orden.
+2. En caso de identificar problemas críticos, proporciona una evaluación detallada de los impactos ambientales y sociales, incluyendo recomendaciones para mitigar estos impactos.
+La salida debe ser un JSON con los siguientes campos: {json_output}.
+Además, asegúrate de que tu análisis sea comprensible para personas sin experiencia técnica, utilizando lenguaje claro y conciso.
 """
 
 
