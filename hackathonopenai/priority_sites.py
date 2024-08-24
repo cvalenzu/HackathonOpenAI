@@ -1,7 +1,8 @@
 import json
-import geopandas 
+import geopandas
 from openai import OpenAI
 from shapely.geometry import Polygon
+
 
 class PrioritySitesAssistant:
 
@@ -9,7 +10,7 @@ class PrioritySitesAssistant:
         self.df = df
         self.client = client
 
-    def system_prompt(self) -> str:        
+    def system_prompt(self) -> str:
         system_prompt = """
         Eres un experto en sitios prioritarios de alta importancia para la conservación ambiental, protección de la biodiversidad, 
         o preservación de ciertos recursos naturales o culturales y te han contratado para hacer la evaluación de impacto ambiental
@@ -34,7 +35,7 @@ class PrioritySitesAssistant:
         ```
         """
         return system_prompt
-    
+
     def format_message(self, close_sites: geopandas.GeoDataFrame) -> str:
         close_sites_data = str(close_sites.to_dict("records"))
         message = """
@@ -43,12 +44,13 @@ class PrioritySitesAssistant:
         """
         return message.replace("{close_sites}", close_sites_data)
 
-
-    def evaluate_project(self, location: Polygon, threshold_in_meters: int = 3000) -> dict:
+    def evaluate_project(
+        self, location: Polygon, threshold_in_meters: int = 3000
+    ) -> dict:
         distance = self.df.geometry.distance(location.iloc[0].geometry)
 
         close_parks = self.df[distance < threshold_in_meters]
-        
+
         print("Numero de sitios cercanos: ", close_parks.shape[0])
 
         system_prompt = self.system_prompt()
@@ -56,12 +58,12 @@ class PrioritySitesAssistant:
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": message}
+            {"role": "user", "content": message},
         ]
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            response_format={ "type": "json_object" },
-            temperature=0
+            response_format={"type": "json_object"},
+            temperature=0,
         )
         return json.loads(response.choices[0].message.content)

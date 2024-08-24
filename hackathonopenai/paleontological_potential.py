@@ -1,5 +1,5 @@
 import json
-import geopandas 
+import geopandas
 import folium
 
 from openai import OpenAI
@@ -14,8 +14,7 @@ class PaleontogicalPotentialAssistant:
         self.client = client
 
     def system_prompt(self) -> str:
-        
-        
+
         system_prompt = """
         Eres un experto en potencial paleontologico y te han contratado para hacer la evaluación de impacto ambiental
         de un nuevo proyecto fotovoltaico en Chile.
@@ -48,28 +47,26 @@ class PaleontogicalPotentialAssistant:
         """
         return message.replace("{overlap_zones}", overlap_zones_data)
 
-
     def evaluate_project(self, location: Polygon) -> dict:
-            overlap = self.df.geometry.overlaps(location.iloc[0].geometry)
-    
-            overlap_zones = self.df[ overlap == True]
-            
-            print("Numero de zonas solapadas: ", overlap_zones.shape[0])
-    
-            system_prompt = self.system_prompt()
-            message = self.format_message(overlap_zones)
-    
-            messages = [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": message}
-            ]
-            response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=messages,
-                response_format={ "type": "json_object" },
-                temperature=0
-            )
-            response_dict = json.loads(response.choices[0].message.content)
-        
-            return response_dict
-            
+        overlap = self.df.geometry.overlaps(location.iloc[0].geometry)
+
+        overlap_zones = self.df[overlap == True]
+
+        print("Numero de zonas solapadas: ", overlap_zones.shape[0])
+
+        system_prompt = self.system_prompt()
+        message = self.format_message(overlap_zones)
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": message},
+        ]
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            response_format={"type": "json_object"},
+            temperature=0,
+        )
+        response_dict = json.loads(response.choices[0].message.content)
+
+        return response_dict

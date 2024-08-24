@@ -48,22 +48,22 @@ class LandUseAssistant:
 
     def evaluate_project(self, location: Polygon) -> dict:
         overlaps = self.df[self.df.geometry.overlaps(location.iloc[0].geometry)]
-        print("# de cruces del poligono con uso de suelo protegido: ", overlaps.shape[0])
+        print(
+            "# de cruces del poligono con uso de suelo protegido: ", overlaps.shape[0]
+        )
 
         system_prompt = self.system_prompt()
         message = self.format_message(overlaps)
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": message}
+            {"role": "user", "content": message},
         ]
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            response_format={ "type": "json_object" },
-            temperature=0
+            response_format={"type": "json_object"},
+            temperature=0,
         )
         response_dict = json.loads(response.choices[0].message.content)
         return response_dict
-
-

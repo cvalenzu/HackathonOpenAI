@@ -1,5 +1,5 @@
 import json
-import geopandas 
+import geopandas
 import folium
 
 from openai import OpenAI
@@ -38,7 +38,7 @@ class NationalMonumentsAssistant:
         ```
         """
         return system_prompt
-    
+
     def format_message(self, close_parks: geopandas.GeoDataFrame) -> str:
         close_parks_data = str(close_parks.to_dict("records"))
         message = """
@@ -47,11 +47,12 @@ class NationalMonumentsAssistant:
         """
         return message.replace("{close_parks}", close_parks_data)
 
-
-    def evaluate_project(self, location: Polygon, threshold_in_kilometers: int = 10) -> dict:
-        distance = self.df.geometry.distance(location.iloc[0].geometry)/1000
-        self.df['distance_in_kms'] = distance
-        close_parks = self.df[self.df.distance_in_kms < threshold_in_kilometers]        
+    def evaluate_project(
+        self, location: Polygon, threshold_in_kilometers: int = 10
+    ) -> dict:
+        distance = self.df.geometry.distance(location.iloc[0].geometry) / 1000
+        self.df["distance_in_kms"] = distance
+        close_parks = self.df[self.df.distance_in_kms < threshold_in_kilometers]
         print("Numero de parques cercanos: ", close_parks.shape[0])
 
         system_prompt = self.system_prompt()
@@ -59,13 +60,13 @@ class NationalMonumentsAssistant:
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": message}
+            {"role": "user", "content": message},
         ]
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            response_format={ "type": "json_object" },
-            temperature=0
+            response_format={"type": "json_object"},
+            temperature=0,
         )
         response_dict = json.loads(response.choices[0].message.content)
 
