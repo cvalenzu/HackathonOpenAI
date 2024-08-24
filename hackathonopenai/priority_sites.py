@@ -26,9 +26,10 @@ class PrioritySitesAssistant:
         El output será un JSON con dos campos
         ```json
         {
-            "emoji": "✅" si no hay problema, "⚠️" si hay algo cercano, "❌" si hay algo critico,
-            "resumen": Resumen breve de la evaluacion,
-            "evaluacion": Detalle de la evaluacion
+            "emoji": (str) "✅" si no hay problema, "⚠️" si hay algo cercano, "❌" si hay algo critico,
+            "resumen": (str) Resumen breve de la evaluacion,
+            "evaluacion": (str) Detalle de la evaluacion, agrega un punteo de los distintos aspectos a evaluar en un lenguaje 
+                                claro y sencillo para que un usuario sin experiencia tecnica pueda entenderlo.
         }
         ```
         """
@@ -58,7 +59,7 @@ class PrioritySitesAssistant:
             {"role": "user", "content": message}
         ]
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=messages,
             response_format={ "type": "json_object" },
             temperature=0

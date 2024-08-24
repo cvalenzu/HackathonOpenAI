@@ -1,7 +1,10 @@
 import json
 import geopandas 
+import folium
+
 from openai import OpenAI
 from shapely.geometry import Polygon
+import streamlit as st
 
 
 class NationalMonumentsAssistant:
@@ -29,7 +32,8 @@ class NationalMonumentsAssistant:
         {
             "emoji": (str) "✅" si no hay problema, "❌" si hay algo critico,
             "resumen": (str) Resumen breve de la evaluacion,
-            "evaluacion": (str) Detalle de la evaluacion
+            "evaluacion": (str) Detalle de la evaluacion, agrega un punteo de los distintos aspectos a evaluar en un lenguaje 
+                                claro y sencillo para que un usuario sin experiencia tecnica pueda entenderlo.
         }
         ```
         """
@@ -58,9 +62,26 @@ class NationalMonumentsAssistant:
             {"role": "user", "content": message}
         ]
         response = self.client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             messages=messages,
             response_format={ "type": "json_object" },
             temperature=0
         )
-        return json.loads(response.choices[0].message.content)
+        response_dict = json.loads(response.choices[0].message.content)
+
+        if len(close_parks) > 0:
+            pass
+            # # Create a map with the close parks with folium
+            # mapa = folium.Map(location=[-33.397629, -71.132279], zoom_start=10)
+            # # Agregar los polígonos al mapa
+            # folium.GeoJson(
+            #     close_parks[['NOMBRE','geometry']],
+            #     style_function=lambda x: {
+            #         "fillColor": "blue",
+            #         "color": "black",
+            #         "weight": 2.5,
+            #         "fillOpacity": 0.5,
+            #     },
+            # ).add_to(mapa)
+            # response_dict["streamlit"] = st.markdown(mapa._repr_html_(), unsafe_allow_html=True)
+        return response_dict
