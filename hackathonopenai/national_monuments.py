@@ -4,7 +4,7 @@ import geopandas
 from openai import OpenAI
 from shapely.geometry import Polygon
 
-from hackathonopenai.constants import JSON_OUTPUT
+from utils.environmental_evaluation_prompts import create_evaluation_prompt
 
 
 class NationalMonumentsAssistant:
@@ -14,24 +14,10 @@ class NationalMonumentsAssistant:
         self.client = client
 
     def system_prompt(self) -> str:
-        system_prompt = f"""
-        Eres un experto en monumentos nacionales y te han contratado para hacer la evaluación de impacto ambiental
-        de un nuevo proyecto fotovoltaico en Chile.
-
-        El usuario entregará su locacion y los monumentos nacionales cercanos, con la distancia en KMs (threshold_in_kilometers)
-        No monumentos nacionales tienen que estar a menos de 5Kms del proyecto para ser considerados cercanos, si estan mas lejos
-        no son tan relevantes, usa tu conocimiento para definir si es algo critico o no.
-
-        Tu trabajo es entregar una detallada evaluación de impacto ambiental del proyecto fotovoltaico en los monumentos nacionales cercanos.
-
-        Para esto primero vas a entregar un resumen si encuentras algo critico, para rechazar el proyecto, si no di que todo esta bien.
-
-        En caso de que encuentres algo critico, debes entregar una evaluación detallada de los impactos ambientales y sociales del proyecto.
-
-        El output será un JSON con los campos
-        {JSON_OUTPUT}
-        """
-        return system_prompt
+        return create_evaluation_prompt(
+            expertise_area="monumentos nacionales",
+            specific_guidelines="Los monumentos nacionales considerados deben estar a menos de 5 km del proyecto para ser relevantes.",
+        )
 
     def format_message(self, close_parks: geopandas.GeoDataFrame) -> str:
         close_parks_data = str(close_parks.to_dict("records"))

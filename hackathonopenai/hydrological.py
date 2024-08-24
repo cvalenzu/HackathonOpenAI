@@ -1,12 +1,10 @@
 import json
-import geopandas
-import folium
 
+import geopandas
 from openai import OpenAI
 from shapely.geometry import Polygon
-import streamlit as st
 
-from hackathonopenai.constants import JSON_OUTPUT
+from utils.environmental_evaluation_prompts import create_evaluation_prompt
 
 
 class HydrologicalAssistant:
@@ -15,31 +13,11 @@ class HydrologicalAssistant:
         self.client = client
 
     def system_prompt(self) -> str:
-        system_prompt = """
-        Eres un experto en hidrografía y su geolocalización, donde se debe preservar la integridad de las redes hídricas de chile y te han contratado para hacer la evaluación de impacto ambiental
-        de un nuevo proyecto fotovoltaico en Chile.
+        return create_evaluation_prompt(
+            expertise_area="hidrografía",
+            specific_guidelines="El usuario entregará su ubicación y la red hidrográfica de Chile. Considera cuerpos de agua cercanos, usando 35 metros como umbral. Si el proyecto se intersecta con un cuerpo de agua, sugiere modificar el polígono o recomienda permisos ambientales sectoriales específicos.",
+        )
 
-        El usuario entregará su locacion y la red hidrográfica de chile.
-
-        Tu trabajo es entregar una detallada evaluación de impacto ambiental del proyecto fotovoltaico en los cuerpos de agua cercanos o que estén dentro del área del proyecto.
-
-        El usuario entregará su locacion y los cuerpos de agua más cercanos, con la en metros (threshold_in_meters)
-        los cuerpos de agua tienen que estar a menos de 35 metros del proyecto para ser considerados cercanos, si estan mas lejos
-        no son tan relevantes, usa tu conocimiento para definir si es algo critico o no. Por otro lado si el cuerpo de agua se intersecta con el polygono del proyecto 
-        (la distancia es 0), podría sugerir modificar el polygono del proyecto dado que es más probable que sea rechazado, o 
-        también incurrir en permisos ambientales sectoriales y recomienda cuales usar.
-
-        Tu trabajo es entregar una detallada evaluación de impacto ambiental del proyecto fotovoltaico en los cuerpos de agua cercanos.
-
-        Para esto primero vas a entregar un resumen si encuentras algo critico, para rechazar el proyecto, si no di que todo esta bien.
-
-        En caso de que encuentres algo critico, debes entregar una evaluación detallada de los impactos ambientales y sociales del proyecto.
-
-        El output será un JSON con los campos
-        {JSON_OUTPUT}
-        """
-        return system_prompt
-    
     def format_message(self, close_hyd: geopandas.GeoDataFrame) -> str:
         close_hyd_data = str(close_hyd.to_dict("records"))
         message = """
@@ -48,11 +26,12 @@ class HydrologicalAssistant:
         """
         return message.replace("{close_hyd}", close_hyd_data)
 
-
-    def evaluate_project(self, location: Polygon, threshold_in_meters: int = 35) -> dict:
+    def evaluate_project(
+        self, location: Polygon, threshold_in_meters: int = 35
+    ) -> dict:
         distance = self.df.geometry.distance(location.iloc[0].geometry.exterior)
-        self.df['distance_in_mts'] = distance
-        close_hyd = self.df[self.df.distance_in_mts < threshold_in_meters]        
+        self.df["distance_in_mts"] = distance
+        close_hyd = self.df[self.df.distance_in_mts < threshold_in_meters]
         print("Numero de cuerpos de agua cercanos: ", close_hyd.shape[0])
 
         system_prompt = self.system_prompt()
@@ -60,13 +39,13 @@ class HydrologicalAssistant:
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": message}
+            {"role": "user", "content": message},
         ]
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            response_format={ "type": "json_object" },
-            temperature=0
+            response_format={"type": "json_object"},
+            temperature=0,
         )
         response_dict = json.loads(response.choices[0].message.content)
 

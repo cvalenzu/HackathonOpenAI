@@ -4,7 +4,7 @@ import geopandas
 from openai import OpenAI
 from shapely.geometry import Polygon
 
-from hackathonopenai.constants import JSON_OUTPUT
+from utils.environmental_evaluation_prompts import create_evaluation_prompt
 
 
 class PaleontogicalPotentialAssistant:
@@ -14,23 +14,10 @@ class PaleontogicalPotentialAssistant:
         self.client = client
 
     def system_prompt(self) -> str:
-        system_prompt = f"""
-        Eres un experto en potencial paleontologico y te han contratado para hacer la evaluación de impacto ambiental
-        de un nuevo proyecto fotovoltaico en Chile.
-
-        El usuario entregará su locacion y los suelos con detalle de potencial paleontologico con los cuales se solapa.
-
-        Tu trabajo es entregar una detallada evaluación de impacto ambiental del proyecto fotovoltaico en esta zona, tomando en cuenta el tipo de potencial.
-
-        Para esto primero vas a entregar un resumen si encuentras algo critico, para rechazar el proyecto, si no di que todo esta bien.
-
-        En caso de que encuentres algo critico, debes entregar una evaluación detallada de los impactos ambientales y sociales del proyecto.
-
-        El output será un JSON con los campos
-        {JSON_OUTPUT}
-        ```
-        """
-        return system_prompt
+        return create_evaluation_prompt(
+            expertise_area="potencial paleontológico",
+            specific_guidelines="Considera los suelos con potencial paleontológico en los cuales se solapa el proyecto.",
+        )
 
     def format_message(self, overlap_zones: geopandas.GeoDataFrame) -> str:
         overlap_zones_data = str(overlap_zones.to_dict("records"))
