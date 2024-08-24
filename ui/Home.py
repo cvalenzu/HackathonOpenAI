@@ -15,7 +15,7 @@ from hackathonopenai import (
 
 
 from dotenv import load_dotenv
-load_dotenv('../.env')
+load_dotenv('.env')
 
 client = OpenAI()
 
@@ -34,6 +34,10 @@ def generate_report_expert(response: dict, title: str):
     with st.expander(f'**{response["emoji"]} {title}**: {response["resumen"]}'):
         st.write(response["evaluacion"])
 
+        map = response.get('streamlit', None)
+        print(map)
+
+
 def call_agents(gdf: gpd.GeoDataFrame):
     """Call agents to the selected area"""
     response_national_park = national_park_expert.evaluate_project(gdf)
@@ -49,7 +53,7 @@ st.write('Welcome to the Home page!')
 m = folium.Map(location=[-33.397629, -71.132279], zoom_start=9)
 Draw(export=True).add_to(m)
 
-output = st_folium(m, width=700, height=500)
+output = st_folium(m, width=1000, height=500)
 
 if st.button('Generar Informe', use_container_width=True):
     geom = output["last_active_drawing"]
