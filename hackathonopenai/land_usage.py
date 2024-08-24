@@ -1,6 +1,7 @@
 import json
-from openai import OpenAI
+
 import geopandas
+from openai import OpenAI
 from shapely.geometry import Polygon
 
 from hackathonopenai.constants import JSON_OUTPUT

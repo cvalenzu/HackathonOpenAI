@@ -1,10 +1,8 @@
 import json
-import geopandas
-import folium
 
+import geopandas
 from openai import OpenAI
 from shapely.geometry import Polygon
-import streamlit as st
 
 from hackathonopenai.constants import JSON_OUTPUT
 
@@ -16,7 +14,6 @@ class PaleontogicalPotentialAssistant:
         self.client = client
 
     def system_prompt(self) -> str:
-
         system_prompt = f"""
         Eres un experto en potencial paleontologico y te han contratado para hacer la evaluación de impacto ambiental
         de un nuevo proyecto fotovoltaico en Chile.

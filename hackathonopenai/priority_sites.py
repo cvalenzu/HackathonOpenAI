@@ -1,4 +1,5 @@
 import json
+
 import geopandas
 from openai import OpenAI
 from shapely.geometry import Polygon

@@ -14,10 +14,18 @@ openai = "^1.42.0"
 python-dotenv = "^1.0.1"
 streamlit = "^1.37.1"
 streamlit-folium = "^0.22.0"
-black = "^24.8.0"
-isort = "^5.13.2"
 
+[tool.poetry.group.dev.dependencies]
+isort = "^5.13.2"
+black = "^24.8.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+py_version = 3
+profile = "black"
+
+[tool.black]
+target-version = ['py312']

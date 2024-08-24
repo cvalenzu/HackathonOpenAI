@@ -1,15 +1,14 @@
 import json
-import geopandas
-import folium
 
+import geopandas
 from openai import OpenAI
 from shapely.geometry import Polygon
-import streamlit as st
 
 from hackathonopenai.constants import JSON_OUTPUT
 
 
 class NationalMonumentsAssistant:
+
     def __init__(self, df: geopandas.GeoDataFrame, client: OpenAI):
         self.df = df
         self.client = client

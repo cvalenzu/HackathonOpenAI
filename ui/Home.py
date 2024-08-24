@@ -9,8 +9,8 @@ from streamlit_folium import st_folium
 
 from hackathonopenai import (
     NationalMonumentsAssistant,
-    PrioritySitesAssistant,
     PaleontogicalPotentialAssistant,
+    PrioritySitesAssistant,
 )
 from hackathonopenai.land_usage import LandUseAssistant
 
