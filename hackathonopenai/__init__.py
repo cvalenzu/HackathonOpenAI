@@ -1,1 +1,2 @@
 from .national_monuments import NationalMonumentsAssistant
+from .priority_sites import PrioritySitesAssistant

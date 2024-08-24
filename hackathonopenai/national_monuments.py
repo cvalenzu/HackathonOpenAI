@@ -47,9 +47,7 @@ class NationalMonumentsAssistant:
     def evaluate_project(self, location: Polygon, threshold_in_kilometers: int = 10) -> dict:
         distance = self.df.geometry.distance(location.iloc[0].geometry)/1000
         self.df['distance_in_kms'] = distance
-        close_parks = self.df[self.df.distance_in_kms < threshold_in_kilometers]
-        print(close_parks)
-        
+        close_parks = self.df[self.df.distance_in_kms < threshold_in_kilometers]        
         print("Numero de parques cercanos: ", close_parks.shape[0])
 
         system_prompt = self.system_prompt()
