@@ -27,7 +27,7 @@ class NationalMonumentsAssistant:
 
         En caso de que encuentres algo critico, debes entregar una evaluación detallada de los impactos ambientales y sociales del proyecto.
 
-        El output será un JSON con dos campos
+        El output será un JSON con los campos
         ```json
         {
             "emoji": (str) "✅" si no hay problema, "❌" si hay algo critico,

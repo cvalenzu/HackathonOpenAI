@@ -1,2 +1,3 @@
 from .national_monuments import NationalMonumentsAssistant
 from .priority_sites import PrioritySitesAssistant
+from .paleontological_potential import PaleontogicalPotentialAssistant

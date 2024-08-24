@@ -9,7 +9,8 @@ from streamlit_folium import st_folium
 
 from hackathonopenai import (
     NationalMonumentsAssistant,
-    PrioritySitesAssistant
+    PrioritySitesAssistant,
+    PaleontogicalPotentialAssistant
 )
 from hackathonopenai.land_usage import LandUseAssistant
 
@@ -31,16 +32,22 @@ def load_assistants():
     df_land_usage = gpd.read_file('data/uso_suelos/05_region_valparaiso.shp')[
         ["USO_TIERRA", "USO", "NOM_REG", "NOM_COM", "geometry"]]
     df_land_usage_kms = df_land_usage.to_crs("EPSG:32633")
+
+    df_palentological = gpd.read_file('data/potencial_paleontologico/data_pot_paleon.shp')
+    df_palentological_kms = df_palentological.to_crs("EPSG:32633")
+
     return {
         "national_park_expert_data": df_kms,
         "priority_sites_expert_data": df_prioritarios_kms,
-        "land_usage_expert_data": df_land_usage_kms
+        "land_usage_expert_data": df_land_usage_kms,
+        "paleontological_potential_expert_data": df_palentological_kms
     }
 
 experts = load_assistants()
 national_monument_expert = NationalMonumentsAssistant(df=experts['national_park_expert_data'], client=client)
 priority_sites_expert = PrioritySitesAssistant(df=experts['priority_sites_expert_data'], client=client)
 land_usage_expert = LandUseAssistant(df=experts['land_usage_expert_data'], client=client)
+paleontological_potential_expert = PaleontogicalPotentialAssistant(df=experts['paleontological_potential_expert_data'], client=client)
 
 def generate_report_expert(response: dict, title: str):
     with st.expander(f'**{response["emoji"]} {title}**: {response["resumen"]}'):
@@ -59,6 +66,10 @@ def call_agents(gdf: gpd.GeoDataFrame):
     response_land_usage = land_usage_expert.evaluate_project(gdf)
     with st.spinner('Generando informe de Sitios prioritarios...'):
         generate_report_expert(response_land_usage, "Uso de suelos protegidos")
+
+    response_paleontological_potential = paleontological_potential_expert.evaluate_project(gdf)
+    with st.spinner('Generando informe de Potencial paleontológico...'):
+        generate_report_expert(response_paleontological_potential, "Potencial paleontológico")
 
 
 st.title('Asistente de evaluación de proyectos fotovoltaicos')

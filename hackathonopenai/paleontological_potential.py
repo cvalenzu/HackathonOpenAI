@@ -28,11 +28,13 @@ class PaleontogicalPotentialAssistant:
 
         En caso de que encuentres algo critico, debes entregar una evaluación detallada de los impactos ambientales y sociales del proyecto.
 
-        El output será un JSON con dos campos
+        El output será un JSON con los campos
         ```json
         {
-            "resumen": Resumen corto de la evaluacion,
-            "evaluacion": Detalle de la evaluacion
+            "emoji": (str) "✅" si no hay problema, "❌" si hay algo critico,
+            "resumen": (str) Resumen breve de la evaluacion,
+            "evaluacion": (str) Detalle de la evaluacion, agrega un punteo de los distintos aspectos a evaluar en un lenguaje 
+                                claro y sencillo para que un usuario sin experiencia tecnica pueda entenderlo.
         }
         ```
         """
