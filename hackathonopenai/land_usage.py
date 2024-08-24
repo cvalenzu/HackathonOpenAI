@@ -3,6 +3,8 @@ from openai import OpenAI
 import geopandas
 from shapely.geometry import Polygon
 
+from hackathonopenai.constants import JSON_OUTPUT
+
 
 class LandUseAssistant:
 
@@ -12,7 +14,7 @@ class LandUseAssistant:
 
     @staticmethod
     def system_prompt() -> str:
-        system_prompt = """
+        system_prompt = f"""
         Eres un experto en uso de suelos y te han contratado para hacer la evaluación de impacto ambiental de un nuevo proyecto fotovoltaico en Chile.
 
         El usuario entregará la ubicación a validar y los diferentes usos de suelo de la region.
@@ -24,14 +26,7 @@ class LandUseAssistant:
         En caso de encontrar algo crítico, debes entregar una evaluación detallada de los impactos ambientales y sociales del proyecto.
 
         El output será un JSON con dos campos
-        ```json
-        {
-            "emoji": (str) "✅" si no hay problema, "❌" si hay algo critico,
-            "resumen": (str) Resumen breve de la evaluacion,
-            "evaluacion": (str) Detalle de la evaluacion, agrega un punteo de los distintos aspectos a evaluar en un lenguaje 
-                                claro y sencillo para que un usuario sin experiencia tecnica pueda entenderlo.
-        }
-        ```
+        {JSON_OUTPUT}
 
         Las categorías de uso de suelo que considerarás son las siguientes: áreas desprovistas de vegetación, praderas y matorrales, humedales, bosque.
         """

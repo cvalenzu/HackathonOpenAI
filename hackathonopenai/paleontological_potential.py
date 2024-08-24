@@ -6,6 +6,8 @@ from openai import OpenAI
 from shapely.geometry import Polygon
 import streamlit as st
 
+from hackathonopenai.constants import JSON_OUTPUT
+
 
 class PaleontogicalPotentialAssistant:
 
@@ -15,7 +17,7 @@ class PaleontogicalPotentialAssistant:
 
     def system_prompt(self) -> str:
 
-        system_prompt = """
+        system_prompt = f"""
         Eres un experto en potencial paleontologico y te han contratado para hacer la evaluación de impacto ambiental
         de un nuevo proyecto fotovoltaico en Chile.
 
@@ -28,13 +30,7 @@ class PaleontogicalPotentialAssistant:
         En caso de que encuentres algo critico, debes entregar una evaluación detallada de los impactos ambientales y sociales del proyecto.
 
         El output será un JSON con los campos
-        ```json
-        {
-            "emoji": (str) "✅" si no hay problema, "❌" si hay algo critico,
-            "resumen": (str) Resumen breve de la evaluacion,
-            "evaluacion": (str) Detalle de la evaluacion, agrega un punteo de los distintos aspectos a evaluar en un lenguaje 
-                                claro y sencillo para que un usuario sin experiencia tecnica pueda entenderlo.
-        }
+        {JSON_OUTPUT}
         ```
         """
         return system_prompt

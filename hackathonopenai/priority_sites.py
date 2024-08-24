@@ -3,6 +3,8 @@ import geopandas
 from openai import OpenAI
 from shapely.geometry import Polygon
 
+from hackathonopenai.constants import JSON_OUTPUT
+
 
 class PrioritySitesAssistant:
 
@@ -11,7 +13,7 @@ class PrioritySitesAssistant:
         self.client = client
 
     def system_prompt(self) -> str:
-        system_prompt = """
+        system_prompt = f"""
         Eres un experto en sitios prioritarios de alta importancia para la conservación ambiental, protección de la biodiversidad, 
         o preservación de ciertos recursos naturales o culturales y te han contratado para hacer la evaluación de impacto ambiental
         de un nuevo proyecto de parque fotovoltaico en Chile bajo su respectiva legislación.
@@ -25,14 +27,7 @@ class PrioritySitesAssistant:
         En caso de que encuentres algo critico, debes entregar una evaluación detallada de los impactos ambientales y sociales del proyecto.
 
         El output será un JSON con dos campos
-        ```json
-        {
-            "emoji": (str) "✅" si no hay problema, "⚠️" si hay algo cercano, "❌" si hay algo critico,
-            "resumen": (str) Resumen breve de la evaluacion,
-            "evaluacion": (str) Detalle de la evaluacion, agrega un punteo de los distintos aspectos a evaluar en un lenguaje 
-                                claro y sencillo para que un usuario sin experiencia tecnica pueda entenderlo.
-        }
-        ```
+        {JSON_OUTPUT}
         """
         return system_prompt
 
