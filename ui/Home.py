@@ -18,6 +18,9 @@ load_dotenv('.env')
 
 client = OpenAI()
 
+
+st.set_page_config(layout="wide")
+
 @st.cache_data
 def load_assistants():
     # Parques nacionales
@@ -43,15 +46,19 @@ def load_assistants():
         "paleontological_potential_expert_data": df_palentological_kms
     }
 
+
 experts = load_assistants()
 national_monument_expert = NationalMonumentsAssistant(df=experts['national_park_expert_data'], client=client)
 priority_sites_expert = PrioritySitesAssistant(df=experts['priority_sites_expert_data'], client=client)
 land_usage_expert = LandUseAssistant(df=experts['land_usage_expert_data'], client=client)
-paleontological_potential_expert = PaleontogicalPotentialAssistant(df=experts['paleontological_potential_expert_data'], client=client)
+paleontological_potential_expert = PaleontogicalPotentialAssistant(df=experts['paleontological_potential_expert_data'],
+                                                                   client=client)
+
 
 def generate_report_expert(response: dict, title: str):
     with st.expander(f'**{response["emoji"]} {title}**: {response["resumen"]}'):
         st.write(response["evaluacion"])
+
 
 def call_agents(gdf: gpd.GeoDataFrame):
     """Call agents to the selected area"""
@@ -72,17 +79,23 @@ def call_agents(gdf: gpd.GeoDataFrame):
         generate_report_expert(response_paleontological_potential, "Potencial paleontológico")
 
 
-st.title('Asistente de evaluación de proyectos fotovoltaicos')
-st.write('Welcome to the Home page!')
-m = folium.Map(location=[-33.397629, -71.132279], zoom_start=9)
-Draw(export=True).add_to(m)
+st.title('Camilo y Los fotovoltaicos')
+st.write('Welcome to Milito Page!')
 
-output = st_folium(m, width=1000, height=500)
+col1, col2 = st.columns(2)
 
-if st.button('Generar Informe', use_container_width=True):
-    geom = output["last_active_drawing"]
-    if geom:
-        polygon = shape(geom['geometry'])
-        gdf = gpd.GeoDataFrame([geom['properties']], geometry=[polygon], crs="EPSG:4326")
-        gdf_kms = gdf.to_crs("EPSG:32633")
-        call_agents(gdf_kms)
+with col1:
+    m = folium.Map(location=[-33.397629, -71.132279], zoom_start=9)
+    Draw(export=True).add_to(m)
+
+    output = st_folium(m, width=1000, height=500)
+    btn_report = st.button('Generar Informe', use_container_width=True)
+
+with col2:
+    if btn_report:
+        geom = output["last_active_drawing"]
+        if geom:
+            polygon = shape(geom['geometry'])
+            gdf = gpd.GeoDataFrame([geom['properties']], geometry=[polygon], crs="EPSG:4326")
+            gdf_kms = gdf.to_crs("EPSG:32633")
+            call_agents(gdf_kms)
