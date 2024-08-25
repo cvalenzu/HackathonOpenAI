@@ -117,7 +117,7 @@ def call_agents(gdf: gpd.GeoDataFrame):
 # Header
 with st.container():
     st.markdown(
-        "<h1 style='text-align: center;'>Camilo y Los Fotovoltaicos</h1>",
+        "<h1 style='text-align: center;'>Camilo y Los FotovoltAIcos</h1>",
         unsafe_allow_html=True,
     )
     st.markdown(
