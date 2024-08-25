@@ -1,3 +1,5 @@
+import time
+
 import folium
 import geopandas as gpd
 import streamlit as st
@@ -33,29 +35,35 @@ st.set_page_config(layout="wide")
 def load_assistants():
     # Load geospatial data
     df_national_monuments = load_geospatial_data(NATIONAL_PARKS_PATH)
-    df_prioritarios = load_geospatial_data(PRIORITY_SITES_PATH)
+    df_priority_sites = load_geospatial_data(PRIORITY_SITES_PATH)
     df_land_usage = load_geospatial_data(
         LAND_USAGE_PATH, columns=["USO_TIERRA", "USO", "NOM_REG", "NOM_COM", "geometry"]
     )
-    df_palentological = load_geospatial_data(PALEONTOLOGICAL_PATH)
+    df_paleontological = load_geospatial_data(PALEONTOLOGICAL_PATH)
     df_hydrological = load_geospatial_data(HYDROLOGICAL_PATH)
 
     return {
         "national_park_expert_data": df_national_monuments,
-        "priority_sites_expert_data": df_prioritarios,
+        "priority_sites_expert_data": df_priority_sites,
         "land_usage_expert_data": df_land_usage,
-        "paleontological_potential_expert_data": df_palentological,
+        "paleontological_potential_expert_data": df_paleontological,
         "hydrological_expert_data": df_hydrological,
     }
 
 
 def load_geospatial_data(filepath, columns=None):
     """Load and reproject geospatial data."""
+    start_time = time.time()
     try:
         df = gpd.read_file(filepath)
         if columns:
             df = df[columns]
-        return df.to_crs(UTM_CRS)
+        df = df.to_crs(UTM_CRS)
+
+        elapsed_time = time.time() - start_time
+        print(f"Loading time for '{filepath}': {elapsed_time:.2f} secs.")
+
+        return df
     except Exception as e:
         st.error(f"Error loading {filepath}: {e}")
         return None
@@ -106,27 +114,25 @@ def call_agents(gdf: gpd.GeoDataFrame):
 
 # PageView
 
-## Header
-st.markdown(
-    "<h1 style='text-align: center;'>Camilo y Los Fotovoltaicos</h1>",
-    unsafe_allow_html=True,
-)
-st.markdown(
-    "<p style='text-align: center;'>Bienvenido a la página de evaluación de impacto ambiental para proyectos fotovoltaicos.</p>",
-    unsafe_allow_html=True,
-)
-
-# st.title("Camilo y Los fotovoltaicos")
-# st.write(
-#    "Bienvenido a la página de evaluación de impacto ambiental para proyectos fotovoltaicos."
-# )
+# Header
+with st.container():
+    st.markdown(
+        "<h1 style='text-align: center;'>Camilo y Los Fotovoltaicos</h1>",
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        "<p style='text-align: center;'>Bienvenido a la página de evaluación de impacto ambiental para proyectos fotovoltaicos.</p>",
+        unsafe_allow_html=True,
+    )
 
 # Sidebar - Footer information
-## Agregar el how to use
 st.sidebar.markdown("### Información del proyecto")
 st.sidebar.markdown(
     "Este proyecto evalúa el impacto ambiental de proyectos fotovoltaicos en Chile utilizando inteligencia artificial y datos geoespaciales."
 )
+st.sidebar.markdown("---")
+st.sidebar.markdown("### How to use")
+st.sidebar.markdown("STEPS.")
 st.sidebar.markdown("---")
 st.sidebar.markdown("### Contacto")
 st.sidebar.markdown(
@@ -134,28 +140,29 @@ st.sidebar.markdown(
 )
 
 # Layout: Map on the left, Results on the right
-col1, col2 = st.columns(2)
+with st.container():
+    col1, col2 = st.columns(2)
 
-with col1:
-    m = folium.Map(location=[-33.397629, -71.132279], zoom_start=9)
-    Draw(export=False).add_to(m)
-    output = st_folium(m, width=1000, height=500)
+    with col1:
+        m = folium.Map(location=[-32.9, -71.3], zoom_start=10)
+        Draw(export=False).add_to(m)
+        output = st_folium(m, use_container_width=True, height=500)
 
-with col2:
-    btn_report = st.button("Generar Informe", use_container_width=True)
-    if btn_report:
-        geom = output.get("last_active_drawing")
-        if geom:
-            polygon = shape(geom["geometry"])
-            gdf = gpd.GeoDataFrame(
-                [geom["properties"]], geometry=[polygon], crs="EPSG:4326"
-            )
-            gdf_kms = gdf.to_crs("EPSG:32633")
-            call_agents(gdf_kms)
-        else:
-            st.warning(
-                "Por favor, dibuja un polígono en el mapa antes de generar el informe."
-            )
+    with col2:
+        btn_report = st.button("Generar Informe", use_container_width=True)
+        if btn_report:
+            geom = output.get("last_active_drawing")
+            if geom:
+                polygon = shape(geom["geometry"])
+                gdf = gpd.GeoDataFrame(
+                    [geom["properties"]], geometry=[polygon], crs="EPSG:4326"
+                )
+                gdf_kms = gdf.to_crs("EPSG:32633")
+                call_agents(gdf_kms)
+            else:
+                st.warning(
+                    "Por favor, dibuja un polígono en el mapa antes de generar el informe."
+                )
 
 # Footer
 st.markdown(
