@@ -65,7 +65,7 @@ class EnvironmentalAssistantBase(ABC):
                 {"role": "user", "content": message},
             ]
             response = self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o-mini",
                 messages=messages,
                 temperature=0,
                 *args,
