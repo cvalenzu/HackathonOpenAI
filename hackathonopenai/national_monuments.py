@@ -68,20 +68,38 @@ class NationalMonumentsAssistant:
             temperature=0
         )
         response_dict = json.loads(response.choices[0].message.content)
+        response_dict["close_parks"] = close_parks
 
         if len(close_parks) > 0:
-            pass
-            # # Create a map with the close parks with folium
-            # mapa = folium.Map(location=[-33.397629, -71.132279], zoom_start=10)
-            # # Agregar los polígonos al mapa
-            # folium.GeoJson(
-            #     close_parks[['NOMBRE','geometry']],
-            #     style_function=lambda x: {
-            #         "fillColor": "blue",
-            #         "color": "black",
-            #         "weight": 2.5,
-            #         "fillOpacity": 0.5,
-            #     },
-            # ).add_to(mapa)
-            # response_dict["streamlit"] = st.markdown(mapa._repr_html_(), unsafe_allow_html=True)
+            location.to_crs("EPSG:4326", inplace=True)
+            close_parks.to_crs("EPSG:4326", inplace=True)
+
+            centroid = location.centroid.iloc[0]
+            center = [centroid.y, centroid.x]
+
+            mapa_national_monument = folium.Map(location=center, zoom_start=12)
+            # Agregar los polígonos al mapa
+            folium.GeoJson(
+                close_parks[['NOMBRE','geometry']],
+                style_function=lambda x: {
+                    "fillColor": "red",
+                    "color": "black",
+                    "weight": 2.5,
+                    "fillOpacity": 0.5,
+                    "tooltip": x['properties']['NOMBRE']
+                },
+            ).add_to(mapa_national_monument)
+
+            folium.GeoJson(
+                location,
+                style_function=lambda x: {
+                    "fillColor": "blue",
+                    "color": "black",
+                    "weight": 2.5,
+                    "fillOpacity": 0.5,
+                    "tooltip": "Proyecto"
+                },
+            ).add_to(mapa_national_monument)
+
+            response_dict["map"] = mapa_national_monument
         return response_dict

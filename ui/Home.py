@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from folium.plugins import Draw
 from openai import OpenAI
 from shapely.geometry import shape
-from streamlit_folium import st_folium
+from streamlit_folium import st_folium, folium_static
 
 from hackathonopenai import (
     NationalMonumentsAssistant,
@@ -58,23 +58,25 @@ paleontological_potential_expert = PaleontogicalPotentialAssistant(df=experts['p
 def generate_report_expert(response: dict, title: str):
     with st.expander(f'**{response["emoji"]} {title}**: {response["resumen"]}'):
         st.write(response["evaluacion"])
+        if map:=response.get("map"):
+            folium_static(map, width=620, height=200)
 
 
 def call_agents(gdf: gpd.GeoDataFrame):
     """Call agents to the selected area"""
-    response_national_park = national_monument_expert.evaluate_project(gdf)
+    response_national_park = national_monument_expert.evaluate_project(gdf.copy())
     with st.spinner('Generando informe de Monumentos nacionales...'):
         generate_report_expert(response_national_park, "Monumentos nacionales")
 
-    response_priority_sites = priority_sites_expert.evaluate_project(gdf)
+    response_priority_sites = priority_sites_expert.evaluate_project(gdf.copy())
     with st.spinner('Generando informe de Sitios prioritarios...'):
         generate_report_expert(response_priority_sites, "Sitios prioritarios")
 
-    response_land_usage = land_usage_expert.evaluate_project(gdf)
+    response_land_usage = land_usage_expert.evaluate_project(gdf.copy())
     with st.spinner('Generando informe de Sitios prioritarios...'):
         generate_report_expert(response_land_usage, "Uso de suelos protegidos")
 
-    response_paleontological_potential = paleontological_potential_expert.evaluate_project(gdf)
+    response_paleontological_potential = paleontological_potential_expert.evaluate_project(gdf.copy())
     with st.spinner('Generando informe de Potencial paleontológico...'):
         generate_report_expert(response_paleontological_potential, "Potencial paleontológico")
 
