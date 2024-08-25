@@ -69,6 +69,11 @@ def load_geospatial_data(filepath, columns=None):
         return None
 
 
+@st.cache_resource
+def create_map():
+    return folium.Map(location=[-32.9, -71.3], zoom_start=10)
+
+
 # Initialize experts
 experts = load_assistants()
 national_monument_expert = NationalMonumentsAssistant(
@@ -144,8 +149,7 @@ with st.container():
     col1, col2 = st.columns(2)
 
     with col1:
-        m = folium.Map(location=[-32.9, -71.3], zoom_start=10)
-        Draw(export=False).add_to(m)
+        m = create_map()
         output = st_folium(m, use_container_width=True, height=500)
 
     with col2:
