@@ -83,7 +83,7 @@ def create_map():
         export=False,
     )
     draw.add_to(map_container)
-    return m
+    return map_container
 
 
 # Initialize experts
