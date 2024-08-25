@@ -69,23 +69,6 @@ def load_geospatial_data(filepath, columns=None):
         return None
 
 
-def create_map():
-    map_container = folium.Map(location=[-32.9, -71.3], zoom_start=10)
-    draw = Draw(
-        draw_options={
-            "polyline": True,
-            "polygon": True,
-            "circle": False,
-            "rectangle": True,
-            "marker": False,
-        },
-        edit_options={"edit": False, "remove": True},
-        export=False,
-    )
-    draw.add_to(map_container)
-    return map_container
-
-
 # Initialize experts
 experts = load_assistants()
 national_monument_expert = NationalMonumentsAssistant(
@@ -165,8 +148,20 @@ with st.container():
     col1, col2 = st.columns(2)
 
     with col1:
-        m = create_map()
-        output = st_folium(m, use_container_width=True, height=500)
+        map_container = folium.Map(location=[-32.9, -71.3], zoom_start=10)
+        draw = Draw(
+            draw_options={
+                "polyline": True,
+                "polygon": True,
+                "circle": False,
+                "rectangle": True,
+                "marker": False,
+            },
+            edit_options={"edit": False, "remove": True},
+            export=False,
+        )
+        draw.add_to(map_container)
+        output = st_folium(map_container, width=800, height=500)
 
     with col2:
         btn_report = st.button("Generar Informe", use_container_width=True)
