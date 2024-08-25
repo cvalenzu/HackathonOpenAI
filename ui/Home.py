@@ -11,6 +11,7 @@ from hackathonopenai import (
     NationalMonumentsAssistant,
     PaleontogicalPotentialAssistant,
     PrioritySitesAssistant,
+    HydrologicalAssistant,
 )
 from hackathonopenai.land_usage import LandUseAssistant
 
@@ -20,6 +21,7 @@ NATIONAL_PARKS_PATH = "data/parques_nacionales/data_parques.shp"
 PRIORITY_SITES_PATH = "data/sitios_prioritarios/Sitios_Prioritarios.shp"
 LAND_USAGE_PATH = "data/uso_suelos/05_region_valparaiso.shp"
 PALEONTOLOGICAL_PATH = "data/potencial_paleontologico/data_pot_paleon.shp"
+HYDROLOGICAL_PATH = "data/hidro/data_hidro.shp"
 
 load_dotenv(".env")
 
@@ -37,12 +39,14 @@ def load_assistants():
         LAND_USAGE_PATH, columns=["USO_TIERRA", "USO", "NOM_REG", "NOM_COM", "geometry"]
     )
     df_palentological = load_geospatial_data(PALEONTOLOGICAL_PATH)
+    df_hydrological = load_geospatial_data(HYDROLOGICAL_PATH)
 
     return {
         "national_park_expert_data": df_national_monuments,
         "priority_sites_expert_data": df_prioritarios,
         "land_usage_expert_data": df_land_usage,
         "paleontological_potential_expert_data": df_palentological,
+        "hydrological_expert_data": df_hydrological,
     }
 
 
@@ -72,6 +76,9 @@ land_usage_expert = LandUseAssistant(
 paleontological_potential_expert = PaleontogicalPotentialAssistant(
     df=experts["paleontological_potential_expert_data"], client=client
 )
+hydrological_expert = HydrologicalAssistant(
+    df=experts["hydrological_expert_data"], client=client
+)
 
 
 def generate_report_expert(response: dict, title: str):
@@ -87,6 +94,7 @@ def call_agents(gdf: gpd.GeoDataFrame):
         ("Sitios prioritarios", priority_sites_expert),
         ("Uso de suelos protegidos", land_usage_expert),
         ("Potencial paleontológico", paleontological_potential_expert),
+        ("Hidrografía", hydrological_expert),
     ]
 
     for title, expert in experts:

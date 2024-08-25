@@ -8,6 +8,7 @@ from utils.environmental_evaluation_prompts import create_evaluation_prompt
 
 
 class HydrologicalAssistant:
+    
     def __init__(self, df: geopandas.GeoDataFrame, client: OpenAI):
         self.df = df
         self.client = client
