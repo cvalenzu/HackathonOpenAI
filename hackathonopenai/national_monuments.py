@@ -1,6 +1,7 @@
 import json
 
 import geopandas
+import folium
 from openai import OpenAI
 from shapely.geometry import Polygon
 
