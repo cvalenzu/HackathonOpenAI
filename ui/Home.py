@@ -5,13 +5,13 @@ from dotenv import load_dotenv
 from folium.plugins import Draw
 from openai import OpenAI
 from shapely.geometry import shape
-from streamlit_folium import st_folium, folium_static
+from streamlit_folium import folium_static, st_folium
 
 from hackathonopenai import (
+    HydrologicalAssistant,
     NationalMonumentsAssistant,
     PaleontogicalPotentialAssistant,
     PrioritySitesAssistant,
-    HydrologicalAssistant,
 )
 from hackathonopenai.land_usage import LandUseAssistant
 
@@ -26,7 +26,6 @@ HYDROLOGICAL_PATH = "data/hidro/data_hidro.shp"
 load_dotenv(".env")
 
 client = OpenAI()
-
 st.set_page_config(layout="wide")
 
 
@@ -85,7 +84,7 @@ def generate_report_expert(response: dict, title: str):
     """Generates the report for each expert's evaluation."""
     with st.expander(f'**{response["emoji"]} {title}**: {response["resumen"]}'):
         st.write(response["evaluacion"])
-        if map:=response.get("map"):
+        if map := response.get("map"):
             folium_static(map, width=620, height=200)
 
 
@@ -94,7 +93,7 @@ def call_agents(gdf: gpd.GeoDataFrame):
     experts = [
         ("Monumentos nacionales", national_monument_expert),
         ("Sitios prioritarios", priority_sites_expert),
-        ("Uso de suelos protegidos", land_usage_expert),
+        ("Uso de suelos", land_usage_expert),
         ("Potencial paleontológico", paleontological_potential_expert),
         ("Hidrografía", hydrological_expert),
     ]
@@ -105,21 +104,45 @@ def call_agents(gdf: gpd.GeoDataFrame):
             generate_report_expert(response, title)
 
 
-st.title("Camilo y Los fotovoltaicos")
-st.write(
-    "Bienvenido a la página de evaluación de impacto ambiental para proyectos fotovoltaicos."
+# PageView
+
+## Header
+st.markdown(
+    "<h1 style='text-align: center;'>Camilo y Los Fotovoltaicos</h1>",
+    unsafe_allow_html=True,
+)
+st.markdown(
+    "<p style='text-align: center;'>Bienvenido a la página de evaluación de impacto ambiental para proyectos fotovoltaicos.</p>",
+    unsafe_allow_html=True,
 )
 
+# st.title("Camilo y Los fotovoltaicos")
+# st.write(
+#    "Bienvenido a la página de evaluación de impacto ambiental para proyectos fotovoltaicos."
+# )
+
+# Sidebar - Footer information
+## Agregar el how to use
+st.sidebar.markdown("### Información del proyecto")
+st.sidebar.markdown(
+    "Este proyecto evalúa el impacto ambiental de proyectos fotovoltaicos en Chile utilizando inteligencia artificial y datos geoespaciales."
+)
+st.sidebar.markdown("---")
+st.sidebar.markdown("### Contacto")
+st.sidebar.markdown(
+    "Si tienes dudas o sugerencias, contáctanos a través de cacke91@gmail.com "
+)
+
+# Layout: Map on the left, Results on the right
 col1, col2 = st.columns(2)
 
 with col1:
     m = folium.Map(location=[-33.397629, -71.132279], zoom_start=9)
-    Draw(export=True).add_to(m)
-
+    Draw(export=False).add_to(m)
     output = st_folium(m, width=1000, height=500)
-    btn_report = st.button("Generar Informe", use_container_width=True)
 
 with col2:
+    btn_report = st.button("Generar Informe", use_container_width=True)
     if btn_report:
         geom = output.get("last_active_drawing")
         if geom:
@@ -133,3 +156,9 @@ with col2:
             st.warning(
                 "Por favor, dibuja un polígono en el mapa antes de generar el informe."
             )
+
+# Footer
+st.markdown(
+    "<footer style='text-align: center; padding: 10px 0; color: #888;'>© 2024 Camilo y Los Fotovoltaicos. Desarrollado con amor por y para las comunidades.</footer>",
+    unsafe_allow_html=True,
+)

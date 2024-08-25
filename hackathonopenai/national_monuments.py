@@ -61,13 +61,13 @@ class NationalMonumentsAssistant:
             mapa_national_monument = folium.Map(location=center, zoom_start=12)
             # Agregar los polígonos al mapa
             folium.GeoJson(
-                close_parks[['NOMBRE','geometry']],
+                close_parks[["NOMBRE", "geometry"]],
                 style_function=lambda x: {
                     "fillColor": "red",
                     "color": "black",
                     "weight": 2.5,
                     "fillOpacity": 0.5,
-                    "tooltip": x['properties']['NOMBRE']
+                    "tooltip": x["properties"]["NOMBRE"],
                 },
             ).add_to(mapa_national_monument)
 
@@ -78,7 +78,7 @@ class NationalMonumentsAssistant:
                     "color": "black",
                     "weight": 2.5,
                     "fillOpacity": 0.5,
-                    "tooltip": "Proyecto"
+                    "tooltip": "Proyecto",
                 },
             ).add_to(mapa_national_monument)
 

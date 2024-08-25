@@ -18,6 +18,7 @@ streamlit-folium = "^0.22.0"
 [tool.poetry.group.dev.dependencies]
 isort = "^5.13.2"
 black = "^24.8.0"
+jupyter = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]
