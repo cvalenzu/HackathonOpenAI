@@ -69,10 +69,20 @@ def load_geospatial_data(filepath, columns=None):
         return None
 
 
-@st.cache_resource
 def create_map():
-    m = folium.Map(location=[-32.9, -71.3], zoom_start=10)
-    Draw(export=False).add_to(m)
+    map_container = folium.Map(location=[-32.9, -71.3], zoom_start=10)
+    draw = Draw(
+        draw_options={
+            "polyline": True,
+            "polygon": True,
+            "circle": False,
+            "rectangle": True,
+            "marker": False,
+        },
+        edit_options={"edit": False, "remove": True},
+        export=False,
+    )
+    draw.add_to(map_container)
     return m
 
 
