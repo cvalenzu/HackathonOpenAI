@@ -161,7 +161,7 @@ with st.container():
             export=False,
         )
         draw.add_to(map_container)
-        output = st_folium(map_container, width=800, height=500)
+        output = st_folium(map_container, width=800, height=400)
 
     with col2:
         btn_report = st.button("Generar Informe", use_container_width=True)
