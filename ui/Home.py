@@ -105,7 +105,7 @@ def call_agents(gdf: gpd.GeoDataFrame):
             generate_report_expert(response, title)
 
 
-st.title("Camilo y Los fotovoltaicos")
+st.title("Camilo y Los fotovoltAIcos")
 st.write(
     "Bienvenido a la página de evaluación de impacto ambiental para proyectos fotovoltaicos."
 )
