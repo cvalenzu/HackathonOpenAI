@@ -71,7 +71,9 @@ def load_geospatial_data(filepath, columns=None):
 
 @st.cache_resource
 def create_map():
-    return folium.Map(location=[-32.9, -71.3], zoom_start=10)
+    m = folium.Map(location=[-32.9, -71.3], zoom_start=10)
+    Draw(export=False).add_to(m)
+    return m
 
 
 # Initialize experts
@@ -137,7 +139,11 @@ st.sidebar.markdown(
 )
 st.sidebar.markdown("---")
 st.sidebar.markdown("### How to use")
-st.sidebar.markdown("STEPS.")
+st.sidebar.markdown("1. Centra el mapa en el lugar que quieres estudiar.")
+st.sidebar.markdown(
+    "2. Seleciona tu poligono en el mapa, puedes usar las herramientas de unnir puntos, un cuadrado o circulo."
+)
+st.sidebar.markdown("3. Haz clic en 'Generar informe'")
 st.sidebar.markdown("---")
 st.sidebar.markdown("### Contacto")
 st.sidebar.markdown(
