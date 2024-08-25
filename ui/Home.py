@@ -9,53 +9,80 @@ from streamlit_folium import st_folium, folium_static
 
 from hackathonopenai import (
     NationalMonumentsAssistant,
+    PaleontogicalPotentialAssistant,
     PrioritySitesAssistant,
-    PaleontogicalPotentialAssistant
+    HydrologicalAssistant,
 )
 from hackathonopenai.land_usage import LandUseAssistant
 
-load_dotenv('.env')
+# Constants
+UTM_CRS = "EPSG:32633"
+NATIONAL_PARKS_PATH = "data/parques_nacionales/data_parques.shp"
+PRIORITY_SITES_PATH = "data/sitios_prioritarios/Sitios_Prioritarios.shp"
+LAND_USAGE_PATH = "data/uso_suelos/05_region_valparaiso.shp"
+PALEONTOLOGICAL_PATH = "data/potencial_paleontologico/data_pot_paleon.shp"
+HYDROLOGICAL_PATH = "data/hidro/data_hidro.shp"
+
+load_dotenv(".env")
 
 client = OpenAI()
 
-
 st.set_page_config(layout="wide")
+
 
 @st.cache_data
 def load_assistants():
-    # Parques nacionales
-    df = gpd.read_file('data/parques_nacionales/data_parques.shp')
-    df_kms = df.to_crs("EPSG:32633")
-
-    # Sitios prioritarios
-    df_prioritarios = gpd.read_file('data/sitios_prioritarios/Sitios_Prioritarios.shp')
-    df_prioritarios_kms = df_prioritarios.to_crs("EPSG:32633")
-
-    # Uso de suelos
-    df_land_usage = gpd.read_file('data/uso_suelos/05_region_valparaiso.shp')[
-        ["USO_TIERRA", "USO", "NOM_REG", "NOM_COM", "geometry"]]
-    df_land_usage_kms = df_land_usage.to_crs("EPSG:32633")
-
-    df_palentological = gpd.read_file('data/potencial_paleontologico/data_pot_paleon.shp')
-    df_palentological_kms = df_palentological.to_crs("EPSG:32633")
+    # Load geospatial data
+    df_national_monuments = load_geospatial_data(NATIONAL_PARKS_PATH)
+    df_prioritarios = load_geospatial_data(PRIORITY_SITES_PATH)
+    df_land_usage = load_geospatial_data(
+        LAND_USAGE_PATH, columns=["USO_TIERRA", "USO", "NOM_REG", "NOM_COM", "geometry"]
+    )
+    df_palentological = load_geospatial_data(PALEONTOLOGICAL_PATH)
+    df_hydrological = load_geospatial_data(HYDROLOGICAL_PATH)
 
     return {
-        "national_park_expert_data": df_kms,
-        "priority_sites_expert_data": df_prioritarios_kms,
-        "land_usage_expert_data": df_land_usage_kms,
-        "paleontological_potential_expert_data": df_palentological_kms
+        "national_park_expert_data": df_national_monuments,
+        "priority_sites_expert_data": df_prioritarios,
+        "land_usage_expert_data": df_land_usage,
+        "paleontological_potential_expert_data": df_palentological,
+        "hydrological_expert_data": df_hydrological,
     }
 
 
+def load_geospatial_data(filepath, columns=None):
+    """Load and reproject geospatial data."""
+    try:
+        df = gpd.read_file(filepath)
+        if columns:
+            df = df[columns]
+        return df.to_crs(UTM_CRS)
+    except Exception as e:
+        st.error(f"Error loading {filepath}: {e}")
+        return None
+
+
+# Initialize experts
 experts = load_assistants()
-national_monument_expert = NationalMonumentsAssistant(df=experts['national_park_expert_data'], client=client)
-priority_sites_expert = PrioritySitesAssistant(df=experts['priority_sites_expert_data'], client=client)
-land_usage_expert = LandUseAssistant(df=experts['land_usage_expert_data'], client=client)
-paleontological_potential_expert = PaleontogicalPotentialAssistant(df=experts['paleontological_potential_expert_data'],
-                                                                   client=client)
+national_monument_expert = NationalMonumentsAssistant(
+    df=experts["national_park_expert_data"], client=client
+)
+priority_sites_expert = PrioritySitesAssistant(
+    df=experts["priority_sites_expert_data"], client=client
+)
+land_usage_expert = LandUseAssistant(
+    df=experts["land_usage_expert_data"], client=client
+)
+paleontological_potential_expert = PaleontogicalPotentialAssistant(
+    df=experts["paleontological_potential_expert_data"], client=client
+)
+hydrological_expert = HydrologicalAssistant(
+    df=experts["hydrological_expert_data"], client=client
+)
 
 
 def generate_report_expert(response: dict, title: str):
+    """Generates the report for each expert's evaluation."""
     with st.expander(f'**{response["emoji"]} {title}**: {response["resumen"]}'):
         st.write(response["evaluacion"])
         if map:=response.get("map"):
@@ -63,26 +90,25 @@ def generate_report_expert(response: dict, title: str):
 
 
 def call_agents(gdf: gpd.GeoDataFrame):
-    """Call agents to the selected area"""
-    response_national_park = national_monument_expert.evaluate_project(gdf.copy())
-    with st.spinner('Generando informe de Monumentos nacionales...'):
-        generate_report_expert(response_national_park, "Monumentos nacionales")
+    """Call agents to the selected area."""
+    experts = [
+        ("Monumentos nacionales", national_monument_expert),
+        ("Sitios prioritarios", priority_sites_expert),
+        ("Uso de suelos protegidos", land_usage_expert),
+        ("Potencial paleontológico", paleontological_potential_expert),
+        ("Hidrografía", hydrological_expert),
+    ]
 
-    response_priority_sites = priority_sites_expert.evaluate_project(gdf.copy())
-    with st.spinner('Generando informe de Sitios prioritarios...'):
-        generate_report_expert(response_priority_sites, "Sitios prioritarios")
-
-    response_land_usage = land_usage_expert.evaluate_project(gdf.copy())
-    with st.spinner('Generando informe de Sitios prioritarios...'):
-        generate_report_expert(response_land_usage, "Uso de suelos protegidos")
-
-    response_paleontological_potential = paleontological_potential_expert.evaluate_project(gdf.copy())
-    with st.spinner('Generando informe de Potencial paleontológico...'):
-        generate_report_expert(response_paleontological_potential, "Potencial paleontológico")
+    for title, expert in experts:
+        with st.spinner(f"Generando informe de {title}..."):
+            response = expert.evaluate_project(gdf.copy())
+            generate_report_expert(response, title)
 
 
-st.title('Camilo y Los fotovoltaicos')
-st.write('Welcome to Milito Page!')
+st.title("Camilo y Los fotovoltaicos")
+st.write(
+    "Bienvenido a la página de evaluación de impacto ambiental para proyectos fotovoltaicos."
+)
 
 col1, col2 = st.columns(2)
 
@@ -91,13 +117,19 @@ with col1:
     Draw(export=True).add_to(m)
 
     output = st_folium(m, width=1000, height=500)
-    btn_report = st.button('Generar Informe', use_container_width=True)
+    btn_report = st.button("Generar Informe", use_container_width=True)
 
 with col2:
     if btn_report:
-        geom = output["last_active_drawing"]
+        geom = output.get("last_active_drawing")
         if geom:
-            polygon = shape(geom['geometry'])
-            gdf = gpd.GeoDataFrame([geom['properties']], geometry=[polygon], crs="EPSG:4326")
+            polygon = shape(geom["geometry"])
+            gdf = gpd.GeoDataFrame(
+                [geom["properties"]], geometry=[polygon], crs="EPSG:4326"
+            )
             gdf_kms = gdf.to_crs("EPSG:32633")
             call_agents(gdf_kms)
+        else:
+            st.warning(
+                "Por favor, dibuja un polígono en el mapa antes de generar el informe."
+            )
