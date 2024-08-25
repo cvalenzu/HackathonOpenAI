@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from folium.plugins import Draw
 from openai import OpenAI
 from shapely.geometry import shape
-from streamlit_folium import st_folium
+from streamlit_folium import st_folium, folium_static
 
 from hackathonopenai import (
     NationalMonumentsAssistant,
@@ -85,6 +85,8 @@ def generate_report_expert(response: dict, title: str):
     """Generates the report for each expert's evaluation."""
     with st.expander(f'**{response["emoji"]} {title}**: {response["resumen"]}'):
         st.write(response["evaluacion"])
+        if map:=response.get("map"):
+            folium_static(map, width=620, height=200)
 
 
 def call_agents(gdf: gpd.GeoDataFrame):
@@ -99,7 +101,7 @@ def call_agents(gdf: gpd.GeoDataFrame):
 
     for title, expert in experts:
         with st.spinner(f"Generando informe de {title}..."):
-            response = expert.evaluate_project(gdf)
+            response = expert.evaluate_project(gdf.copy())
             generate_report_expert(response, title)
 
 
