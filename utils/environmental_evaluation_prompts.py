@@ -16,6 +16,7 @@ El usuario proporcionará la ubicación y detalles específicos relevantes para 
 2. En caso de identificar problemas críticos, proporciona una evaluación detallada de los impactos ambientales y sociales, incluyendo recomendaciones para mitigar estos impactos.
 La salida debe ser un JSON con los siguientes campos: {json_output}.
 Además, asegúrate de que tu análisis sea comprensible para personas sin experiencia técnica, utilizando lenguaje claro y conciso.
+Debes basarte en la legislación actual chilena.
 """
 
 
